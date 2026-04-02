@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우성공원 장례접수</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f7f6f3;
+    --card:#fff;
+    --primary:#5a6e1e;
+    --primary-dark:#3d4c12;
+    --accent:#e07b20;
+    --accent-light:#f39c12;
+    --text:#333;
+    --sub:#888;
+    --border:#ddd;
+    --focus:#5a6e1e;
+    --success:#5a6e1e;
+    --error:#c0392b;
+  }
+  html,body{
+    font-family:'Noto Sans KR',sans-serif;
+    background:var(--bg);color:var(--text);
+    min-height:100vh;-webkit-font-smoothing:antialiased;
+  }
+
+  /* 헤더 */
+  .header{
+    background:linear-gradient(135deg, #3d4c12 0%, #5a6e1e 60%, #7a8e2e 100%);
+    color:#fff;text-align:center;padding:30px 20px 26px;
+  }
+  .header h1{font-size:22px;font-weight:700;letter-spacing:3px;margin-bottom:4px}
+  .header p{font-size:12px;font-weight:300;color:rgba(255,255,255,.75);letter-spacing:2px}
+
+  .container{max-width:480px;margin:0 auto;padding:20px 16px 40px}
+
+  /* 안내문 */
+  .notice{
+    background:#fdf8f0;border-left:3px solid var(--accent);
+    padding:14px 16px;border-radius:6px;margin-bottom:20px;
+    font-size:13px;line-height:1.7;color:#6b5520;
+  }
+
+  /* 카드 */
+  .card{
+    background:var(--card);border-radius:10px;
+    padding:22px 20px;margin-bottom:14px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+    border:1px solid #eee;
+  }
+  .card-title{
+    font-size:14px;font-weight:600;color:var(--primary-dark);
+    margin-bottom:16px;padding-bottom:10px;
+    border-bottom:1px solid #eee;
+  }
+
+  /* 필드 */
+  .field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:13px;font-weight:500;margin-bottom:5px;color:#444}
+  .field .req{color:var(--error);margin-left:2px}
+  .field input,.field select,.field textarea{
+    width:100%;padding:11px 13px;font-size:15px;
+    font-family:'Noto Sans KR',sans-serif;
+    border:1px solid var(--border);border-radius:8px;
+    background:#fafafa;color:var(--text);
+    transition:border .2s,box-shadow .2s;
+    -webkit-appearance:none;appearance:none;
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{
+    outline:none;border-color:var(--focus);
+    box-shadow:0 0 0 3px rgba(90,110,30,.1);background:#fff;
+  }
+  .field input::placeholder,.field textarea::placeholder{color:#bbb}
+  .field textarea{resize:vertical;min-height:80px}
+  .field .hint{font-size:11px;color:var(--sub);margin-top:4px}
+  .field.error input,.field.error select{border-color:var(--error)}
+  .field .err{font-size:12px;color:var(--error);margin-top:4px;display:none}
+  .field.error .err{display:block}
+
+  /* 라디오 */
+  .radios{display:flex;gap:10px}
+  .radios label{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    padding:10px;border:1px solid var(--border);border-radius:8px;
+    font-size:14px;cursor:pointer;transition:all .2s;background:#fafafa;
+  }
+  .radios input{display:none}
+  .radios input:checked+label{
+    border-color:var(--primary);background:rgba(90,110,30,.06);
+    color:var(--primary);font-weight:500;
+  }
+
+  /* 체크박스 */
+  .check-row{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 0;cursor:pointer;
+  }
+  .check-row input[type="checkbox"]{
+    width:20px;height:20px;accent-color:var(--primary);cursor:pointer;
+    flex-shrink:0;
+  }
+  .check-row span{font-size:14px;color:#444}
+  .enshrine-input{
+    display:none;margin-top:10px;
+    animation:fadeIn .3s ease;
+  }
+  .enshrine-input.on{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+
+  /* 버튼 */
+  .btn{
+    display:block;width:100%;padding:15px;font-size:16px;
+    font-weight:600;font-family:'Noto Sans KR',sans-serif;
+    background:linear-gradient(135deg,#5a6e1e,#7a8e2e);
+    color:#fff;border:none;border-radius:10px;cursor:pointer;
+    letter-spacing:1px;margin-top:10px;transition:transform .1s,opacity .2s;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+
+  /* 로딩 */
+  .loading{display:none;text-align:center;padding:40px 20px}.loading.on{display:block}
+  .spin{
+    width:36px;height:36px;border:3px solid #eee;
+    border-top-color:var(--primary);border-radius:50%;
+    animation:sp .8s linear infinite;margin:0 auto 12px;
+  }
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* 모달 */
+  .modal-bg{
+    display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,.5);z-index:100;
+    align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-bg.on{display:flex}
+  .modal{
+    background:#fff;border-radius:14px;padding:32px 24px;
+    max-width:380px;width:100%;text-align:center;
+    box-shadow:0 10px 40px rgba(0,0,0,.2);
+    animation:pop .35s ease;
+  }
+  .modal .check-icon{
+    width:56px;height:56px;border-radius:50%;
+    background:var(--success);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 18px;
+  }
+  .modal .check-icon svg{width:28px;height:28px;stroke:#fff;stroke-width:3;fill:none}
+  .modal h2{font-size:18px;font-weight:600;margin-bottom:12px;color:var(--primary-dark)}
+  .modal p{font-size:13px;color:#666;line-height:1.7;margin-bottom:6px}
+  .modal .warn{
+    background:#fdf8f0;border:1px solid #f0d9a8;border-radius:8px;
+    padding:12px 14px;margin:16px 0;font-size:12px;color:#8a6d20;line-height:1.6;
+    text-align:left;
+  }
+  .modal .close-btn{
+    display:inline-block;padding:10px 36px;font-size:14px;font-weight:500;
+    background:var(--primary);color:#fff;border:none;border-radius:8px;
+    cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:8px;
+  }
+  .modal .close-btn:active{opacity:.8}
+  @keyframes pop{0%{transform:scale(0);opacity:0}80%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
+
+  /* 에러 결과 */
+  .result{display:none;text-align:center;padding:50px 20px}.result.on{display:block}
+  .result .icon{width:64px;height:64px;border-radius:50%;background:var(--error);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+  .result .icon svg{width:32px;height:32px;stroke:#fff;stroke-width:3;fill:none}
+  .result h2{font-size:20px;font-weight:600;margin-bottom:10px}
+  .result p{font-size:14px;color:var(--sub);line-height:1.7}
+
+  .footer{text-align:center;padding:20px;font-size:11px;color:#aaa}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>우성공원</h1>
+  <p>장례접수</p>
+</div>
+
+<div class="container">
+
+  <div class="notice" id="notice">
+    업무시간(09:00~17:00) 외 장례 접수 페이지입니다.<br>
+    아래 정보를 입력하시면 담당자가 확인 후 연락드리겠습니다.
+  </div>
+
+  <div id="formArea">
+
+    <!-- 계약자 정보 -->
+    <div class="card">
+      <div class="card-title">계약자 정보</div>
+      <div class="field" id="f-name">
+        <label>이름 <span class="req">*</span></label>
+        <input type="text" id="contractorName" placeholder="계약자 성함" autocomplete="name">
+        <div class="err">이름을 입력해주세요.</div>
+      </div>
+      <div class="field" id="f-phone">
+        <label>연락처 <span class="req">*</span></label>
+        <input type="tel" id="contractorPhone" placeholder="010-0000-0000" autocomplete="tel">
+        <div class="err">연락처를 입력해주세요.</div>
+        <div class="hint">담당자가 이 번호로 연락드립니다.</div>
+      </div>
+    </div>
+
+    <!-- 고인 정보 -->
+    <div class="card">
+      <div class="card-title">고인 정보</div>
+      <div class="field" id="f-deceased">
+        <label>고인 성함 <span class="req">*</span></label>
+        <input type="text" id="deceasedName" placeholder="고인 성함">
+        <div class="err">고인 성함을 입력해주세요.</div>
+      </div>
+      <div class="field" id="f-gender">
+        <label>성별 <span class="req">*</span></label>
+        <div class="radios">
+          <input type="radio" name="gender" id="gM" value="남">
+          <label for="gM">남</label>
+          <input type="radio" name="gender" id="gF" value="여">
+          <label for="gF">여</label>
+        </div>
+        <div class="err">성별을 선택해주세요.</div>
+      </div>
+    </div>
+
+    <!-- 장례 일정 -->
+    <div class="card">
+      <div class="card-title">장례 일정</div>
+      <div class="field" id="f-date">
+        <label>발인 희망일 <span class="req">*</span></label>
+        <input type="date" id="funeralDate">
+        <div class="err">발인 희망일을 선택해주세요.</div>
+      </div>
+
+      <div style="border-top:1px solid #eee;margin-top:14px;padding-top:12px">
+        <label class="check-row" for="hasEnshrine">
+          <input type="checkbox" id="hasEnshrine" onchange="toggleEnshrine()">
+          <span>기존에 안치된 고인분이 있으신가요?</span>
+        </label>
+        <div class="enshrine-input" id="enshrineArea">
+          <div class="field">
+            <label>기존 안치자 성함</label>
+            <input type="text" id="enshrineName" placeholder="안치자 성함을 입력해주세요">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 추가 사항 -->
+    <div class="card">
+      <div class="card-title">추가 사항</div>
+      <div class="field">
+        <label>전달 사항</label>
+        <textarea id="memo" placeholder="기타 전달하실 내용이 있으시면 입력해주세요."></textarea>
+      </div>
+    </div>
+
+    <button type="button" class="btn" id="submitBtn" onclick="submitForm()">접수하기</button>
+  </div>
+
+  <!-- 로딩 -->
+  <div class="loading" id="loading">
+    <div class="spin"></div>
+    <p style="font-size:14px;color:#888">접수 처리 중입니다...</p>
+  </div>
+
+  <!-- 에러 -->
+  <div class="result" id="failView">
+    <div class="icon">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <h2>오류가 발생했습니다</h2>
+    <p>잠시 후 다시 시도해주시거나<br>직접 연락 부탁드립니다.<br><br>
+      <a href="tel:0549334774" style="color:var(--accent);font-weight:500">054-933-4774</a>
+    </p>
+  </div>
+</div>
+
+<!-- 성공 모달 -->
+<div class="modal-bg" id="successModal">
+  <div class="modal">
+    <div class="check-icon">
+      <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>
+    </div>
+    <h2>접수가 완료되었습니다</h2>
+    <p>담당자가 확인 후 빠른 시간 내 연락드리겠습니다.</p>
+    <div class="warn">
+      접수 완료 후 <b>12시간 내 별도 연락이 없을 시</b>,<br>
+      공원 사무실(<b>054-933-4774</b>)로<br>
+      확인 연락 부탁드립니다.
+    </div>
+    <p style="font-size:12px;color:#aaa">감사합니다.</p>
+    <button class="close-btn" onclick="document.getElementById('successModal').classList.remove('on')">확인</button>
+  </div>
+</div>
+
+<div class="footer">© 우성공원</div>
+
+<script>
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbzp2aj4W-S67Q45t47MBgyLd8RydpjpmWkVjcr8fTczbFxlZ632VynZEOC3DH2g9OgPgA/exec';
+
+(function(){
+  var d=new Date(),y=d.getFullYear(),
+      m=String(d.getMonth()+1).padStart(2,'0'),
+      dd=String(d.getDate()).padStart(2,'0');
+  document.getElementById('funeralDate').min=y+'-'+m+'-'+dd;
+})();
+
+document.getElementById('contractorPhone').addEventListener('input',function(e){
+  var v=e.target.value.replace(/[^0-9]/g,'');
+  if(v.length>3&&v.length<=7) v=v.slice(0,3)+'-'+v.slice(3);
+  else if(v.length>7) v=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7,11);
+  e.target.value=v;
+});
+
+function toggleEnshrine(){
+  var area=document.getElementById('enshrineArea');
+  var cb=document.getElementById('hasEnshrine');
+  if(cb.checked){area.classList.add('on')}
+  else{area.classList.remove('on');document.getElementById('enshrineName').value='';}
+}
+
+function validate(){
+  var ok=true;
+  [{f:'f-name',i:'contractorName'},{f:'f-phone',i:'contractorPhone'},
+   {f:'f-deceased',i:'deceasedName'},{f:'f-date',i:'funeralDate'}
+  ].forEach(function(c){
+    var el=document.getElementById(c.f);
+    el.classList.remove('error');
+    if(!document.getElementById(c.i).value.trim()){el.classList.add('error');ok=false;}
+  });
+  var gf=document.getElementById('f-gender');
+  gf.classList.remove('error');
+  if(!document.querySelector('input[name="gender"]:checked')){gf.classList.add('error');ok=false;}
+  var ph=document.getElementById('contractorPhone').value.replace(/[^0-9]/g,'');
+  if(ph.length<10||ph.length>11){document.getElementById('f-phone').classList.add('error');ok=false;}
+  return ok;
+}
+
+function submitForm(){
+  if(!validate()){
+    var fe=document.querySelector('.field.error');
+    if(fe)fe.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  var g=document.querySelector('input[name="gender"]:checked');
+  var data={
+    contractorName:document.getElementById('contractorName').value.trim(),
+    contractorPhone:document.getElementById('contractorPhone').value.replace(/[^0-9]/g,''),
+    deceasedName:document.getElementById('deceasedName').value.trim(),
+    deceasedGender:g?g.value:'',
+    funeralDate:document.getElementById('funeralDate').value,
+    enshrineName:document.getElementById('enshrineName').value.trim(),
+    memo:document.getElementById('memo').value.trim()
+  };
+
+  document.getElementById('formArea').style.display='none';
+  document.getElementById('notice').style.display='none';
+  document.getElementById('loading').classList.add('on');
+
+  var url=SCRIPT_URL+'?action=submit&data='+encodeURIComponent(JSON.stringify(data));
+  var script=document.createElement('script');
+  script.src=url+'&callback=onResult';
+  document.body.appendChild(script);
+
+  setTimeout(function(){
+    if(document.getElementById('loading').classList.contains('on')){
+      document.getElementById('loading').classList.remove('on');
+      document.getElementById('successModal').classList.add('on');
+    }
+  },15000);
+}
+
+function onResult(res){
+  document.getElementById('loading').classList.remove('on');
+  if(res&&res.success){
+    document.getElementById('successModal').classList.add('on');
+  }else{
+    document.getElementById('failView').classList.add('on');
+  }
+}
+</script>
+</body>
+</html>
