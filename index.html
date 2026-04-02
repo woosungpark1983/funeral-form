@@ -231,9 +231,9 @@
     <div class="card">
       <div class="card-title">장례 일정</div>
       <div class="field" id="f-date">
-        <label>발인 희망일 <span class="req">*</span></label>
+        <label>발인예정일 <span class="req">*</span></label>
         <input type="date" id="funeralDate">
-        <div class="err">발인 희망일을 선택해주세요.</div>
+        <div class="err">발인예정일을 선택해주세요.</div>
       </div>
 
       <div style="border-top:1px solid #eee;margin-top:14px;padding-top:12px">
@@ -266,6 +266,7 @@
   <div class="loading" id="loading">
     <div class="spin"></div>
     <p style="font-size:14px;color:#888">접수 처리 중입니다...</p>
+    <p style="font-size:12px;color:var(--error);margin-top:10px">완료 화면이 나올 때까지 페이지를 닫지 마세요.</p>
   </div>
 
   <!-- 에러 -->
@@ -280,7 +281,29 @@
   </div>
 </div>
 
-<!-- 성공 모달 -->
+<!-- 접수 전 확인 모달 -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal">
+    <div class="check-icon" style="background:var(--accent)">
+      <svg viewBox="0 0 24 24" style="stroke:#fff;fill:none;stroke-width:2"><path d="M12 9v4m0 4h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
+    </div>
+    <h2>접수 전 안내사항</h2>
+    <div class="warn">
+      • 접수 완료 후 <b>12시간 내 별도 연락이 없을 시</b>,<br>
+      &nbsp;&nbsp;공원 사무실(<b>054-933-4774</b>)로<br>
+      &nbsp;&nbsp;확인 연락 부탁드립니다.<br><br>
+      • 접수하기를 누르면 <b>완료 화면이 나올 때까지</b><br>
+      &nbsp;&nbsp;페이지를 닫지 마세요.<br>
+      &nbsp;&nbsp;중간에 닫으시면 접수가 되지 않습니다.
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="close-btn" style="background:#aaa;flex:1" onclick="document.getElementById('confirmModal').classList.remove('on')">취소</button>
+      <button class="close-btn" style="flex:1" onclick="doSubmit()">확인하였습니다</button>
+    </div>
+  </div>
+</div>
+
+<!-- 접수 완료 모달 -->
 <div class="modal-bg" id="successModal">
   <div class="modal">
     <div class="check-icon">
@@ -288,13 +311,8 @@
     </div>
     <h2>접수가 완료되었습니다</h2>
     <p>담당자가 확인 후 빠른 시간 내 연락드리겠습니다.</p>
-    <div class="warn">
-      접수 완료 후 <b>12시간 내 별도 연락이 없을 시</b>,<br>
-      공원 사무실(<b>054-933-4774</b>)로<br>
-      확인 연락 부탁드립니다.
-    </div>
-    <p style="font-size:12px;color:#aaa">감사합니다.</p>
-    <button class="close-btn" onclick="document.getElementById('successModal').classList.remove('on')">확인</button>
+    <p style="font-size:12px;color:#aaa;margin-top:12px">감사합니다.</p>
+    <button class="close-btn" style="margin-top:12px" onclick="document.getElementById('successModal').classList.remove('on')">확인</button>
   </div>
 </div>
 
@@ -347,6 +365,13 @@ function submitForm(){
     if(fe)fe.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
+  // 확인 모달 띄우기
+  document.getElementById('confirmModal').classList.add('on');
+}
+
+function doSubmit(){
+  document.getElementById('confirmModal').classList.remove('on');
+
   var g=document.querySelector('input[name="gender"]:checked');
   var data={
     contractorName:document.getElementById('contractorName').value.trim(),
