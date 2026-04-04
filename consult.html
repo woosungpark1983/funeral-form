@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우성공원 상담접수</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f7f6f3;--card:#fff;--primary:#5a6e1e;--primary-dark:#3d4c12;
+    --accent:#e07b20;--text:#333;--sub:#888;--border:#ddd;
+    --focus:#5a6e1e;--success:#5a6e1e;--error:#c0392b;
+  }
+  html,body{
+    font-family:'Noto Sans KR',sans-serif;
+    background:var(--bg);color:var(--text);
+    min-height:100vh;-webkit-font-smoothing:antialiased;
+  }
+  .header{
+    background:linear-gradient(135deg,#3d4c12 0%,#5a6e1e 60%,#7a8e2e 100%);
+    color:#fff;text-align:center;padding:30px 20px 26px;
+  }
+  .header h1{font-size:22px;font-weight:700;letter-spacing:3px;margin-bottom:4px}
+  .header p{font-size:12px;font-weight:300;color:rgba(255,255,255,.75);letter-spacing:2px}
+  .container{max-width:520px;margin:0 auto;padding:20px 16px 40px}
+
+  .notice{
+    background:#fdf8f0;border-left:3px solid var(--accent);
+    padding:14px 16px;border-radius:6px;margin-bottom:20px;
+    font-size:13px;line-height:1.7;color:#6b5520;
+  }
+
+  /* 스텝 */
+  .step{display:none;animation:fadeIn .4s ease}
+  .step.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{
+    background:var(--card);border-radius:10px;
+    padding:24px 20px;margin-bottom:14px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid #eee;
+  }
+  .card-title{
+    font-size:15px;font-weight:600;color:var(--primary-dark);
+    margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #eee;
+  }
+
+  .question{font-size:15px;font-weight:500;color:var(--primary-dark);margin-bottom:16px;line-height:1.6}
+
+  /* 선택 버튼 */
+  .choice-group{display:flex;flex-direction:column;gap:10px}
+  .choice-btn{
+    display:block;width:100%;padding:14px 16px;font-size:15px;
+    font-family:'Noto Sans KR',sans-serif;font-weight:500;
+    background:#fafafa;color:var(--text);
+    border:1px solid var(--border);border-radius:10px;
+    cursor:pointer;transition:all .2s;text-align:left;
+  }
+  .choice-btn:active{transform:scale(.98)}
+  .choice-btn:hover{border-color:var(--primary);background:rgba(90,110,30,.04)}
+  .choice-btn.selected{
+    border-color:var(--primary);background:rgba(90,110,30,.08);
+    color:var(--primary);
+  }
+
+  /* 상품 카드 */
+  .product-grid{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+  .product-card{
+    background:#fafafa;border:1px solid #eee;border-radius:10px;
+    overflow:hidden;cursor:pointer;transition:all .2s;
+  }
+  .product-card:hover{border-color:var(--primary)}
+  .product-card.selected{border-color:var(--primary);border-width:2px;background:rgba(90,110,30,.04)}
+  .product-img{
+    width:100%;height:160px;background:#e8e4df;
+    display:flex;align-items:center;justify-content:center;
+    color:#aaa;font-size:13px;
+  }
+  .product-img img{width:100%;height:100%;object-fit:cover}
+  .product-info{padding:14px 16px}
+  .product-info h3{font-size:14px;font-weight:600;color:var(--primary-dark);margin-bottom:6px}
+  .product-info p{font-size:12px;color:#666;line-height:1.6}
+
+  /* 선택 표시 */
+  .product-card .check-mark{
+    display:none;position:absolute;top:10px;right:10px;
+    width:24px;height:24px;background:var(--primary);border-radius:50%;
+    align-items:center;justify-content:center;
+  }
+  .product-card.selected .check-mark{display:flex}
+  .product-card{position:relative}
+
+  /* 폼 필드 */
+  .field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:13px;font-weight:500;margin-bottom:5px;color:#444}
+  .field .req{color:var(--error);margin-left:2px}
+  .field input{
+    width:100%;padding:11px 13px;font-size:15px;
+    font-family:'Noto Sans KR',sans-serif;
+    border:1px solid var(--border);border-radius:8px;
+    background:#fafafa;color:var(--text);
+    transition:border .2s,box-shadow .2s;
+    -webkit-appearance:none;appearance:none;
+  }
+  .field input:focus{
+    outline:none;border-color:var(--focus);
+    box-shadow:0 0 0 3px rgba(90,110,30,.1);background:#fff;
+  }
+  .field input::placeholder{color:#bbb}
+  .field .hint{font-size:11px;color:var(--sub);margin-top:4px}
+  .field.error input{border-color:var(--error)}
+  .field .err{font-size:12px;color:var(--error);margin-top:4px;display:none}
+  .field.error .err{display:block}
+
+  /* 메모 */
+  .field textarea{
+    width:100%;padding:11px 13px;font-size:15px;
+    font-family:'Noto Sans KR',sans-serif;
+    border:1px solid var(--border);border-radius:8px;
+    background:#fafafa;color:var(--text);resize:vertical;min-height:70px;
+    -webkit-appearance:none;appearance:none;
+  }
+  .field textarea:focus{
+    outline:none;border-color:var(--focus);
+    box-shadow:0 0 0 3px rgba(90,110,30,.1);background:#fff;
+  }
+
+  /* 버튼 */
+  .btn{
+    display:block;width:100%;padding:15px;font-size:16px;
+    font-weight:600;font-family:'Noto Sans KR',sans-serif;
+    background:linear-gradient(135deg,#5a6e1e,#7a8e2e);
+    color:#fff;border:none;border-radius:10px;cursor:pointer;
+    letter-spacing:1px;margin-top:10px;transition:transform .1s;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-outline{
+    display:block;width:100%;padding:12px;font-size:14px;
+    font-weight:500;font-family:'Noto Sans KR',sans-serif;
+    background:transparent;color:var(--primary);
+    border:1px solid var(--primary);border-radius:10px;cursor:pointer;
+    margin-top:8px;transition:all .2s;
+  }
+  .btn-outline:hover{background:rgba(90,110,30,.05)}
+
+  /* 진행 바 */
+  .progress{
+    display:flex;gap:6px;margin-bottom:20px;
+  }
+  .progress-dot{
+    flex:1;height:4px;border-radius:2px;background:#ddd;transition:background .3s;
+  }
+  .progress-dot.done{background:var(--primary)}
+  .progress-dot.current{background:var(--accent)}
+
+  /* 요약 */
+  .summary{
+    background:#f9f8f5;border:1px solid #eee;border-radius:8px;
+    padding:16px;margin-bottom:16px;
+  }
+  .summary-row{
+    display:flex;justify-content:space-between;
+    padding:6px 0;font-size:13px;border-bottom:1px solid #f0f0f0;
+  }
+  .summary-row:last-child{border-bottom:none}
+  .summary-row .label{color:#888}
+  .summary-row .value{font-weight:500;color:var(--primary-dark)}
+
+  /* 로딩 */
+  .loading{display:none;text-align:center;padding:40px 20px}.loading.on{display:block}
+  .spin{
+    width:36px;height:36px;border:3px solid #eee;
+    border-top-color:var(--primary);border-radius:50%;
+    animation:sp .8s linear infinite;margin:0 auto 12px;
+  }
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* 모달 */
+  .modal-bg{
+    display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,.5);z-index:100;
+    align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-bg.on{display:flex}
+  .modal{
+    background:#fff;border-radius:14px;padding:32px 24px;
+    max-width:380px;width:100%;text-align:center;
+    box-shadow:0 10px 40px rgba(0,0,0,.2);animation:pop .35s ease;
+  }
+  .modal .check-icon{
+    width:56px;height:56px;border-radius:50%;background:var(--success);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+  }
+  .modal .check-icon svg{width:28px;height:28px;stroke:#fff;stroke-width:3;fill:none}
+  .modal h2{font-size:18px;font-weight:600;margin-bottom:12px;color:var(--primary-dark)}
+  .modal p{font-size:13px;color:#666;line-height:1.7}
+  .modal .warn{
+    background:#fdf8f0;border:1px solid #f0d9a8;border-radius:8px;
+    padding:12px 14px;margin:16px 0;font-size:12px;color:#8a6d20;line-height:1.6;text-align:left;
+  }
+  .modal .close-btn{
+    display:inline-block;padding:10px 36px;font-size:14px;font-weight:500;
+    background:var(--primary);color:#fff;border:none;border-radius:8px;
+    cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:8px;
+  }
+  @keyframes pop{0%{transform:scale(0);opacity:0}80%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
+
+  /* 에러 */
+  .result{display:none;text-align:center;padding:50px 20px}.result.on{display:block}
+  .result .icon{width:64px;height:64px;border-radius:50%;background:var(--error);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+  .result .icon svg{width:32px;height:32px;stroke:#fff;stroke-width:3;fill:none}
+  .result h2{font-size:20px;font-weight:600;margin-bottom:10px}
+  .result p{font-size:14px;color:var(--sub);line-height:1.7}
+
+  .footer{text-align:center;padding:20px;font-size:11px;color:#aaa}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>우성공원</h1>
+  <p>상담접수</p>
+</div>
+
+<div class="container">
+
+  <div class="notice" id="notice">
+    업무시간(09:00~17:00) 외 상담 접수 페이지입니다.<br>
+    아래 설문에 응답하시면 담당자가 확인 후 연락드리겠습니다.
+  </div>
+
+  <!-- 진행 바 -->
+  <div class="progress" id="progressBar">
+    <div class="progress-dot current" id="dot1"></div>
+    <div class="progress-dot" id="dot2"></div>
+    <div class="progress-dot" id="dot3"></div>
+    <div class="progress-dot" id="dot4"></div>
+    <div class="progress-dot" id="dot5"></div>
+  </div>
+
+  <div id="formArea">
+
+    <!-- STEP 1: 장례 발생 여부 -->
+    <div class="step active" id="step1">
+      <div class="card">
+        <div class="card-title">상담 유형 확인</div>
+        <div class="question">장례가 발생하셨습니까?</div>
+        <div class="choice-group">
+          <button class="choice-btn" onclick="selectStep1('yes')">네, 발생했어요</button>
+          <button class="choice-btn" onclick="selectStep1('no')">아니요, 사전 상담이 필요해요</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: 화장 여부 -->
+    <div class="step" id="step2">
+      <div class="card">
+        <div class="card-title">장례 방식 확인</div>
+        <div class="question">화장을 계획하고 계십니까?</div>
+        <div class="choice-group">
+          <button class="choice-btn" onclick="selectStep2('cremation')">네, 화장을 계획하고 있어요</button>
+          <button class="choice-btn" onclick="selectStep2('burial')">아니요, 매장을 계획하고 있어요</button>
+        </div>
+      </div>
+      <button class="btn-outline" onclick="goBack(1)">← 이전으로</button>
+    </div>
+
+    <!-- STEP 3: 상품 선택 (화장) -->
+    <div class="step" id="step3-cremation">
+      <div class="card">
+        <div class="card-title">묘 형태 선택</div>
+        <div class="question">어떤 방식의 묘를 생각하고 계십니까?</div>
+        <div class="product-grid">
+
+          <div class="product-card" onclick="selectProduct(this,'평장묘')">
+            <div class="product-img"><img src="images/pyeongjang.jpg" alt="평장묘"></div>
+            <div class="product-info">
+              <h3>평장묘</h3>
+              <p>유골을 석물 아래에 안치하는 친환경 자연장 방식입니다.</p>
+            </div>
+          </div>
+
+          <div class="product-card" onclick="selectProduct(this,'수목장')">
+            <div class="product-img"><img src="images/sumok.jpg" alt="수목장"></div>
+            <div class="product-info">
+              <h3>수목장</h3>
+              <p>유골을 나무 주변에 안치하는 방식으로, 자연으로의 회귀를 상징합니다.</p>
+            </div>
+          </div>
+
+          <div class="product-card" onclick="selectProduct(this,'봉안묘')">
+            <div class="product-img"><img src="images/bongan-myo.jpg" alt="봉안묘"></div>
+            <div class="product-info">
+              <h3>봉안묘</h3>
+              <p>유골함을 석물로 조성한 묘 안에 보존하는 안치 방식입니다.</p>
+            </div>
+          </div>
+
+          <div class="product-card" onclick="selectProduct(this,'봉안당')">
+            <div class="product-img"><img src="images/bongan-dang.jpg" alt="봉안당"></div>
+            <div class="product-info">
+              <h3>봉안당</h3>
+              <p>호텔형 실내 봉안함에 모시는 방식으로, 계절에 관계없이 편안한 성묘가 가능합니다.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <button class="btn-outline" onclick="goBack(2)">← 이전으로</button>
+    </div>
+
+    <!-- STEP 3: 상품 선택 (매장) -->
+    <div class="step" id="step3-burial">
+      <div class="card">
+        <div class="card-title">매장묘 안내</div>
+        <div class="product-grid">
+
+          <div class="product-card selected" onclick="selectProduct(this,'매장묘')">
+            <div class="product-img"><img src="images/maejang.jpg" alt="매장묘"></div>
+            <div class="product-info">
+              <h3>매장묘</h3>
+              <p>전통적인 장례 방식으로, 고인을 땅에 모시는 형태입니다. 자연 속에서 편안한 안식처를 마련합니다.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <button class="btn-outline" onclick="goBack(2)">← 이전으로</button>
+      <button class="btn" onclick="goToContact()" style="margin-top:12px">다음 →</button>
+    </div>
+
+    <!-- STEP 4: 몇 분 모실 건지 -->
+    <div class="step" id="step-capacity">
+      <div class="card">
+        <div class="card-title">안치 인원</div>
+        <div class="question">몇 분을 모실 예정이십니까?</div>
+        <div class="choice-group">
+          <button class="choice-btn" onclick="selectCapacity('개인 (1인)')">개인 (1인)</button>
+          <button class="choice-btn" onclick="selectCapacity('부부 (2인)')">부부 (2인)</button>
+          <button class="choice-btn" onclick="selectCapacity('가족 (3인 이상)')">가족 (3인 이상)</button>
+        </div>
+      </div>
+      <button class="btn-outline" onclick="goBack(3)">← 이전으로</button>
+    </div>
+
+    <!-- STEP 5: 연락처 입력 -->
+    <div class="step" id="step4">
+      <div class="card">
+        <div class="card-title">상담 접수 정보</div>
+
+        <div class="summary" id="summaryArea"></div>
+
+        <div class="field" id="f-name">
+          <label>이름 <span class="req">*</span></label>
+          <input type="text" id="clientName" placeholder="성함을 입력해주세요" autocomplete="name">
+          <div class="err">이름을 입력해주세요.</div>
+        </div>
+        <div class="field" id="f-phone">
+          <label>연락처 <span class="req">*</span></label>
+          <input type="tel" id="clientPhone" placeholder="010-0000-0000" autocomplete="tel">
+          <div class="err">연락처를 입력해주세요.</div>
+          <div class="hint">담당자가 이 번호로 연락드립니다.</div>
+        </div>
+        <div class="field">
+          <label>추가 문의사항</label>
+          <textarea id="clientMemo" placeholder="궁금하신 점이 있으시면 입력해주세요."></textarea>
+        </div>
+      </div>
+      <button class="btn-outline" onclick="goBack(4)">← 이전으로</button>
+      <button class="btn" onclick="submitConsult()">상담 접수하기</button>
+    </div>
+
+  </div>
+
+  <!-- 로딩 -->
+  <div class="loading" id="loading">
+    <div class="spin"></div>
+    <p style="font-size:14px;color:#888">접수 처리 중입니다...</p>
+    <p style="font-size:12px;color:var(--error);margin-top:10px">완료 화면이 나올 때까지 페이지를 닫지 마세요.</p>
+  </div>
+
+  <!-- 에러 -->
+  <div class="result" id="failView">
+    <div class="icon">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <h2>오류가 발생했습니다</h2>
+    <p>잠시 후 다시 시도해주시거나<br>직접 연락 부탁드립니다.<br><br>
+      <a href="tel:0549334774" style="color:var(--accent);font-weight:500">054-933-4774</a>
+    </p>
+  </div>
+</div>
+
+<!-- 확인 모달 -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal">
+    <div class="check-icon" style="background:var(--accent)">
+      <svg viewBox="0 0 24 24" style="stroke:#fff;fill:none;stroke-width:2"><path d="M12 9v4m0 4h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
+    </div>
+    <h2>접수 전 안내사항</h2>
+    <div class="warn">
+      • 통신 장애로 인해 접수 내용이<br>
+      &nbsp;&nbsp;정상적으로 수신되지 않을 수 있습니다.<br>
+      &nbsp;&nbsp;접수 후 <b>12시간 내 별도 연락이 없을 시</b>,<br>
+      &nbsp;&nbsp;공원 사무실(<b>054-933-4774</b>)로<br>
+      &nbsp;&nbsp;확인 연락 부탁드립니다.<br><br>
+      • 접수하기를 누르면 <b>완료 화면이 나올 때까지</b><br>
+      &nbsp;&nbsp;페이지를 닫지 마세요.<br>
+      &nbsp;&nbsp;중간에 닫으시면 접수가 되지 않습니다.
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="close-btn" style="background:#aaa;flex:1" onclick="document.getElementById('confirmModal').classList.remove('on')">취소</button>
+      <button class="close-btn" style="flex:1;white-space:nowrap" onclick="doSubmitConsult()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 성공 모달 -->
+<div class="modal-bg" id="successModal">
+  <div class="modal">
+    <div class="check-icon">
+      <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>
+    </div>
+    <h2>상담 접수가 완료되었습니다</h2>
+    <p>담당자가 확인 후 빠른 시간 내 연락드리겠습니다.</p>
+    <p style="font-size:12px;color:#aaa;margin-top:12px">감사합니다.</p>
+    <button class="close-btn" style="margin-top:12px" onclick="document.getElementById('successModal').classList.remove('on')">확인</button>
+  </div>
+</div>
+
+<div class="footer">© 우성공원</div>
+
+<script>
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbzp2aj4W-S67Q45t47MBgyLd8RydpjpmWkVjcr8fTczbFxlZ632VynZEOC3DH2g9OgPgA/exec';
+
+var formData={
+  funeralOccurred:'',
+  cremation:'',
+  productType:'',
+  capacity:'',
+  clientName:'',
+  clientPhone:'',
+  clientMemo:''
+};
+
+// 전화번호 자동 하이픈
+document.getElementById('clientPhone').addEventListener('input',function(e){
+  var v=e.target.value.replace(/[^0-9]/g,'');
+  if(v.length>3&&v.length<=7) v=v.slice(0,3)+'-'+v.slice(3);
+  else if(v.length>7) v=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7,11);
+  e.target.value=v;
+});
+
+function showStep(id){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateProgress(step){
+  for(var i=1;i<=5;i++){
+    var dot=document.getElementById('dot'+i);
+    dot.classList.remove('done','current');
+    if(i<step) dot.classList.add('done');
+    if(i===step) dot.classList.add('current');
+  }
+}
+
+// STEP 1
+function selectStep1(val){
+  formData.funeralOccurred=val;
+  document.querySelectorAll('#step1 .choice-btn').forEach(function(b){b.classList.remove('selected')});
+  event.target.classList.add('selected');
+  setTimeout(function(){
+    showStep('step2');
+    updateProgress(2);
+  },300);
+}
+
+// STEP 2
+function selectStep2(val){
+  formData.cremation=val;
+  document.querySelectorAll('#step2 .choice-btn').forEach(function(b){b.classList.remove('selected')});
+  event.target.classList.add('selected');
+  setTimeout(function(){
+    if(val==='cremation'){
+      showStep('step3-cremation');
+    }else{
+      formData.productType='매장묘';
+      showStep('step3-burial');
+    }
+    updateProgress(3);
+  },300);
+}
+
+// 상품 선택
+function selectProduct(el,name){
+  var parent=el.closest('.step');
+  parent.querySelectorAll('.product-card').forEach(function(c){c.classList.remove('selected')});
+  el.classList.add('selected');
+  formData.productType=name;
+
+  // 화장 선택 시 자동 다음 단계
+  if(parent.id==='step3-cremation'){
+    setTimeout(function(){goToContact()},400);
+  }
+}
+
+function goToContact(){
+  if(!formData.productType){alert('상품을 선택해주세요.');return;}
+  showStep('step-capacity');
+  updateProgress(4);
+}
+
+function selectCapacity(val){
+  formData.capacity=val;
+  document.querySelectorAll('#step-capacity .choice-btn').forEach(function(b){b.classList.remove('selected')});
+  event.target.classList.add('selected');
+  setTimeout(function(){
+    // 요약 표시
+    var summary='';
+    summary+='<div class="summary-row"><span class="label">장례 발생</span><span class="value">'+(formData.funeralOccurred==='yes'?'예':'아니오 (사전상담)')+'</span></div>';
+    summary+='<div class="summary-row"><span class="label">장례 방식</span><span class="value">'+(formData.cremation==='cremation'?'화장':'매장')+'</span></div>';
+    summary+='<div class="summary-row"><span class="label">선택 상품</span><span class="value">'+formData.productType+'</span></div>';
+    summary+='<div class="summary-row"><span class="label">안치 인원</span><span class="value">'+formData.capacity+'</span></div>';
+    document.getElementById('summaryArea').innerHTML=summary;
+    showStep('step4');
+    updateProgress(5);
+  },300);
+}
+
+function goBack(fromStep){
+  if(fromStep===1){showStep('step1');updateProgress(1);}
+  if(fromStep===2){showStep('step2');updateProgress(2);}
+  if(fromStep===3){
+    if(formData.cremation==='cremation') showStep('step3-cremation');
+    else showStep('step3-burial');
+    updateProgress(3);
+  }
+  if(fromStep===4){showStep('step-capacity');updateProgress(4);}
+}
+
+function submitConsult(){
+  // 유효성 검사
+  var ok=true;
+  var nameEl=document.getElementById('f-name');
+  var phoneEl=document.getElementById('f-phone');
+  nameEl.classList.remove('error');
+  phoneEl.classList.remove('error');
+
+  if(!document.getElementById('clientName').value.trim()){nameEl.classList.add('error');ok=false;}
+  var ph=document.getElementById('clientPhone').value.replace(/[^0-9]/g,'');
+  if(ph.length<10||ph.length>11){phoneEl.classList.add('error');ok=false;}
+
+  if(!ok){
+    var fe=document.querySelector('.field.error');
+    if(fe)fe.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  formData.clientName=document.getElementById('clientName').value.trim();
+  formData.clientPhone=document.getElementById('clientPhone').value.replace(/[^0-9]/g,'');
+  formData.clientMemo=document.getElementById('clientMemo').value.trim();
+
+  // 확인 모달
+  document.getElementById('confirmModal').classList.add('on');
+}
+
+function doSubmitConsult(){
+  document.getElementById('confirmModal').classList.remove('on');
+  document.getElementById('formArea').style.display='none';
+  document.getElementById('notice').style.display='none';
+  document.getElementById('progressBar').style.display='none';
+  document.getElementById('loading').classList.add('on');
+
+  var data={
+    type:'consult',
+    funeralOccurred:formData.funeralOccurred==='yes'?'예':'아니오',
+    cremation:formData.cremation==='cremation'?'화장':'매장',
+    productType:formData.productType,
+    capacity:formData.capacity,
+    clientName:formData.clientName,
+    clientPhone:formData.clientPhone,
+    clientMemo:formData.clientMemo
+  };
+
+  var url=SCRIPT_URL+'?action=consult&data='+encodeURIComponent(JSON.stringify(data));
+  var script=document.createElement('script');
+  script.src=url+'&callback=onResult';
+  document.body.appendChild(script);
+
+  setTimeout(function(){
+    if(document.getElementById('loading').classList.contains('on')){
+      document.getElementById('loading').classList.remove('on');
+      document.getElementById('successModal').classList.add('on');
+    }
+  },5000);
+}
+
+function onResult(res){
+  document.getElementById('loading').classList.remove('on');
+  if(res&&res.success){
+    document.getElementById('successModal').classList.add('on');
+  }else{
+    document.getElementById('failView').classList.add('on');
+  }
+}
+</script>
+</body>
+</html>
