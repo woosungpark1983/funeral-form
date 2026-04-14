@@ -79,8 +79,23 @@
   }
   .product-img img{width:100%;height:100%;object-fit:cover}
   .product-info{padding:14px 16px}
-  .product-info h3{font-size:14px;font-weight:600;color:var(--primary-dark);margin-bottom:6px}
+  .product-info h3{font-size:14px;font-weight:600;color:var(--primary-dark);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .product-info h3 .p-icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;border-radius:6px;
+    background:rgba(90,110,30,.1);
+    flex-shrink:0;font-size:15px;
+  }
   .product-info p{font-size:12px;color:#666;line-height:1.6}
+  .product-tag{
+    margin-top:8px;font-size:11px;color:var(--primary);
+    display:flex;gap:4px;flex-wrap:wrap;
+  }
+  .product-tag{
+    background:rgba(90,110,30,.06);border-radius:4px;
+    padding:4px 8px;display:inline-block;font-size:11px;
+    color:var(--primary);letter-spacing:0.5px;
+  }
 
   /* 선택 표시 */
   .product-card .check-mark{
@@ -277,32 +292,36 @@
           <div class="product-card" onclick="selectProduct(this,'평장묘')">
             <div class="product-img"><img src="images/pyeongjang.jpg" alt="평장묘"></div>
             <div class="product-info">
-              <h3>평장묘</h3>
-              <p>유골을 석물 아래에 안치하는 친환경 자연장 방식입니다.</p>
+              <h3><span class="p-icon">🌿</span>평장묘</h3>
+              <p>유골을 한지 또는 목함에 담아 석물 아래 땅에 안치하는 자연장 방식이에요.</p>
+              <div class="product-tag">친환경 · 자연회귀 · 정갈함</div>
             </div>
           </div>
 
           <div class="product-card" onclick="selectProduct(this,'수목장')">
             <div class="product-img"><img src="images/sumok.jpg" alt="수목장"></div>
             <div class="product-info">
-              <h3>수목장</h3>
-              <p>유골을 나무 주변에 안치하는 방식으로, 자연으로의 회귀를 상징합니다.</p>
+              <h3><span class="p-icon">🌳</span>수목장</h3>
+              <p>유골을 한지 또는 목함에 담아 추모목(나무) 아래 땅에 안치하는 자연장 방식이에요.</p>
+              <div class="product-tag">친환경 · 자연회귀 · 명품 추모목</div>
             </div>
           </div>
 
           <div class="product-card" onclick="selectProduct(this,'봉안묘')">
             <div class="product-img"><img src="images/bongan-myo.jpg" alt="봉안묘"></div>
             <div class="product-info">
-              <h3>봉안묘</h3>
-              <p>유골함을 석물로 조성한 묘 안에 보존하는 안치 방식입니다.</p>
+              <h3><span class="p-icon">🪦</span>봉안묘</h3>
+              <p>유골을 유골함에 담아 석물 묘 안에 영구적으로 보관하는 방식이에요.</p>
+              <div class="product-tag">영구보존 · 대대손손 · 안전한 구조</div>
             </div>
           </div>
 
           <div class="product-card" onclick="selectProduct(this,'봉안당')">
             <div class="product-img"><img src="images/bongan-dang.jpg" alt="봉안당"></div>
             <div class="product-info">
-              <h3>봉안당</h3>
-              <p>호텔형 실내 봉안함에 모시는 방식으로, 계절에 관계없이 편안한 성묘가 가능합니다.</p>
+              <h3><span class="p-icon">✨</span>봉안당</h3>
+              <p>유골을 유골함에 담아 호텔형 실내 시설에 보관하며, 계절에 관계없이 편안한 성묘가 가능해요.</p>
+              <div class="product-tag">사계절 성묘 · 프리미엄 시설 · 쾌적한 환경</div>
             </div>
           </div>
 
