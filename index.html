@@ -394,6 +394,15 @@ function doSubmit(){
   script.src=url+'&callback=onResult';
   document.body.appendChild(script);
 
+  /* 잔디 알림 (CRM 서버 중계) — 실패해도 접수(시트·완료 화면)엔 영향 없음 */
+  try{
+    fetch('https://woosungpark-web.vercel.app/api/funeral-form/alert',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({form:'funeral',data:data})
+    }).catch(function(){});
+  }catch(e){}
+
   setTimeout(function(){
     if(document.getElementById('loading').classList.contains('on')){
       document.getElementById('loading').classList.remove('on');
